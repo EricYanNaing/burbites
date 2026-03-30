@@ -15,7 +15,7 @@
 }
 
 :root {
-  --background: #ededed;
+  --background: oklch(0.94 0.015 75);
   --foreground: #0a0a0a;
   --color-primary: #E31837;
   --color-secondary: oklch(0.24 0.03 37);
@@ -32,4 +32,5 @@
 
 body {
   color: var(--background);
+  background-color: var(--background);
 }
