@@ -17,7 +17,7 @@ export default function Home() {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        className="h-80 w-full overflow-hidden rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+        className="h-60 w-full overflow-hidden rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
       >
         <div className="flex h-full w-full flex-col items-start justify-end gap-1 p-5">
           <CustomBadge
