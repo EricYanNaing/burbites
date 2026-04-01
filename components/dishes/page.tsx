@@ -8,7 +8,6 @@ import { Shop } from "@/lib/types/shop";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { LoadingState } from "@/components/ui/loading-state";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Reveal } from "../animations/reveal";
 
 const PAGE_SIZE = 4;
 
@@ -21,6 +20,7 @@ export function DishesPage() {
     const [hasMore, setHasMore] = useState(true);
     const [loading, setLoading] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
+    const [total, setTotal] = useState(0);
 
     useEffect(() => {
         setMounted(true);
@@ -73,6 +73,7 @@ export function DishesPage() {
                     page === 1 ? res.items : [...currentShops, ...res.items],
                 );
                 setHasMore(res.hasMore);
+                setTotal(res.total);
             } catch (error) {
                 if (!controller.signal.aborted) {
                     console.log(error);
@@ -116,15 +117,37 @@ export function DishesPage() {
             </div>
 
             {/* Dish List  */}
-            <div className="">
-                <p className="text-sm font-medium font-display text-primary">Discover our delicious dishes</p>
+            <div className="space-y-4">
+                <div className="flex items-end justify-between gap-3">
+                    <div className="space-y-1">
+                        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary/70">
+                            Nearby kitchens
+                        </p>
+                        <h2 className="text-[1.7rem] font-black leading-none text-secondary">
+                            Burmese spots worth the trip
+                        </h2>
+                    </div>
+
+                    {mounted && hasFetched ? (
+                        <span className="rounded-full border border-primary/10 bg-primary/6 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                            {search.trim() ? `${total} matches` : `${total} open picks`}
+                        </span>
+                    ) : null}
+                </div>
+
+                <p className="max-w-[22rem] text-sm leading-6 text-secondary/65">
+                    {search.trim()
+                        ? `Showing the best Burmese kitchens for "${search}".`
+                        : "Strong broths, tea-house classics, and fast pickup spots near you."}
+                </p>
+
                 {!mounted || (!hasFetched && shops.length === 0) ? (
-                    <LoadingState label="Finding dishes near you" />
+                    <LoadingState label="Finding nearby kitchens" />
                 ) : null}
                 {mounted && hasFetched && !loading && shops.length === 0 && search.trim() ? (
                     <EmptyState
                         description={
-                            `No dishes matched "${search}". Try a different name or cuisine.`
+                            `No kitchens matched "${search}". Try a different dish, neighborhood, or cuisine.`
                         }
                     />
                 ) : null}
@@ -133,23 +156,40 @@ export function DishesPage() {
                         dataLength={shops.length}
                         next={loadMore}
                         hasMore={hasMore}
+                        scrollThreshold="160px"
                         loader={
                             loading && shops.length > 0 ? (
                                 <LoadingState
                                     variant="inline"
-                                    label="Loading more dishes"
+                                    label="Loading more kitchens"
                                 />
                             ) : null
                         }
+                        endMessage={
+                            <p className="py-4 text-center text-sm font-medium text-secondary/55">
+                                You have reached the end of today&apos;s nearby picks.
+                            </p>
+                        }
                     >
                         {shops.map((shop) => (
-                            <Reveal key={shop.id}>
-                                <CustomCard
-                                    title={shop.name}
-                                    description={shop.description}
-                                    image={shop.image}
-                                />
-                            </Reveal>
+                            <CustomCard
+                                key={shop.id}
+                                className="mb-4"
+                                title={shop.name}
+                                description={shop.description}
+                                image={shop.image}
+                                rating={shop.rating}
+                                reviewCount={shop.reviewCount}
+                                distance={shop.distance}
+                                eta={shop.eta}
+                                neighborhood={shop.neighborhood}
+                                open={shop.open}
+                                openTime={shop.openTime}
+                                closeTime={shop.closeTime}
+                                address={shop.address}
+                                specialties={shop.specialties}
+                                heroGradient={shop.heroGradient}
+                            />
                         ))}
                     </InfiniteScroll>
                 ) : null}
