@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -20,12 +20,6 @@ export function Reveal({
     y = 20,
     scale = 0.98,
 }: RevealProps) {
-    const reduceMotion = useReducedMotion();
-
-    if (reduceMotion) {
-        return <div className={className}>{children}</div>;
-    }
-
     return (
         <motion.div
             className={className}
@@ -39,12 +33,6 @@ export function Reveal({
 }
 
 export function ShellReveal({ children }: { children: ReactNode }) {
-    const reduceMotion = useReducedMotion();
-
-    if (reduceMotion) {
-        return <>{children}</>;
-    }
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 28, scale: 0.985 }}
