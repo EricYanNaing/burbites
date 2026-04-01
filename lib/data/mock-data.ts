@@ -25,7 +25,7 @@ export const shops: Shop[] = [
     mapPosition: { x: 46, y: 58 },
   },
   {
-    id: "3",
+    id: "2",
     slug: "burmese-tea-house",
     name: "Burmese Tea House",
     image:
@@ -48,7 +48,7 @@ export const shops: Shop[] = [
     mapPosition: { x: 78, y: 46 },
   },
   {
-    id: "5",
+    id: "3",
     slug: "mandalay-restaurant",
     name: "Mandalay Restaurant",
     image:
@@ -94,7 +94,7 @@ export const shops: Shop[] = [
     mapPosition: { x: 56, y: 34 },
   },
   {
-    id: "6",
+    id: "5",
     slug: "burmese-kitchen",
     name: "Burmese Kitchen",
     image:
@@ -117,7 +117,7 @@ export const shops: Shop[] = [
     mapPosition: { x: 43, y: 52 },
   },
   {
-    id: "7",
+    id: "6",
     slug: "maw-shan-house",
     name: "Maw Shan House",
     image:
@@ -140,7 +140,7 @@ export const shops: Shop[] = [
     mapPosition: { x: 67, y: 28 },
   },
   {
-    id: "8",
+    id: "7",
     slug: "silver-myanmar-kitchen",
     name: "Silver Myanmar Kitchen",
     image:
@@ -163,7 +163,7 @@ export const shops: Shop[] = [
     mapPosition: { x: 49, y: 61 },
   },
   {
-    id: "9",
+    id: "8",
     slug: "yangon-tea-house",
     name: "Yangon Tea House",
     image:

@@ -21,3 +21,16 @@ export type Shop = {
     y: number;
   };
 };
+
+export type FetchOptions = {
+  query?: string;
+  page: number;
+  limit: number;
+  signal?: AbortSignal;
+}
+
+export type FetchResult = {
+  items: Shop[];
+  hasMore: boolean;
+  total: number;
+}

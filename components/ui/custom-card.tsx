@@ -15,7 +15,7 @@ export function CustomCard({ title, description, className, image }: CustomCardP
                     <img
                         src={image}
                         alt={title}
-                        className="h-48 w-full bg-white object-contain"
+                        className="h-48 w-full bg-white object-cover"
                     />
                 )}
                 <div className="p-4">

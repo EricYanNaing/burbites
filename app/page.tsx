@@ -1,5 +1,3 @@
-"use client";
-
 import { Reveal } from "@/components/animations/reveal";
 import { DishesPage } from "@/components/dishes/page";
 import { CustomBadge } from "@/components/ui/custom-badge";
