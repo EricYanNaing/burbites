@@ -238,7 +238,7 @@ export function DishesPage() {
                                     type="button"
                                     onClick={() => handleCategorySelect(cat.slug, index)}
                                     aria-pressed={isSelected}
-                                    className={`group relative min-w-[118px] shrink-0 overflow-hidden rounded-[26px] border px-3 pb-3 pt-4 text-left transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ${isSelected
+                                    className={`cursor-pointer group relative min-w-[118px] shrink-0 overflow-hidden rounded-[26px] border px-3 pb-3 pt-4 text-left transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ${isSelected
                                         ? "border-primary/35 bg-white shadow-[0_16px_40px_rgba(227,24,55,0.16)]"
                                         : "border-black/6 bg-[#fff8f6] hover:-translate-y-0.5 hover:border-primary/15 hover:bg-white hover:shadow-[0_12px_30px_rgba(42,19,13,0.08)]"
                                         }`}
@@ -350,24 +350,27 @@ export function DishesPage() {
                         }
                     >
                         {shops.map((shop) => (
-                            <CustomCard
-                                key={shop.id}
-                                className="mb-4"
-                                title={shop.name}
-                                description={shop.description}
-                                image={shop.image}
-                                rating={shop.rating}
-                                reviewCount={shop.reviewCount}
-                                distance={shop.distance}
-                                eta={shop.eta}
-                                neighborhood={shop.neighborhood}
-                                open={shop.open}
-                                openTime={shop.openTime}
-                                closeTime={shop.closeTime}
-                                address={shop.address}
-                                specialties={shop.featuredCategorySlugs}
-                                heroGradient={shop.heroGradient}
-                            />
+                            <div key={shop.id}>
+                                <CustomCard
+                                    id={shop.id}
+                                    className="mb-4"
+                                    slug={shop.slug}
+                                    title={shop.name}
+                                    description={shop.description}
+                                    image={shop.image}
+                                    rating={shop.rating}
+                                    reviewCount={shop.reviewCount}
+                                    distance={shop.distance}
+                                    eta={shop.eta}
+                                    neighborhood={shop.neighborhood}
+                                    open={shop.open}
+                                    openTime={shop.openTime}
+                                    closeTime={shop.closeTime}
+                                    address={shop.address}
+                                    specialties={shop.featuredCategorySlugs}
+                                    heroGradient={shop.heroGradient}
+                                />
+                            </div>
                         ))}
                     </InfiniteScroll>
                 ) : null}

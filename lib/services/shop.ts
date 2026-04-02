@@ -28,3 +28,7 @@ export async function getShops(query?: string, category?: PlatformCategory) {
         );
     });
 }
+
+export async function getShopDetail(id?:string){
+    return shops.find((shop) => shop.id === id);
+}

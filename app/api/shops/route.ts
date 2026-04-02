@@ -15,3 +15,4 @@ export async function GET(request: NextRequest) {
     const hasMore = startIndex + limit < shops.length;
     return Response.json({ items: pageItems, hasMore, total: shops.length });
 }
+

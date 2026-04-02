@@ -1,5 +1,6 @@
 import { apiGet } from "../http";
 import { FetchOptions, FetchResult } from "../types/shop";
+import { Shop } from "../types/shop";
 
 export async function fetchShops(
     { query, category, page, limit, signal }: FetchOptions,
@@ -8,4 +9,8 @@ export async function fetchShops(
         params: { query, category, page, limit },
         signal,
     });
+}
+
+export async function fetchShopDetail(id: string) {
+    return await apiGet<Shop>(`/shops/${id}`);
 }
