@@ -2,10 +2,10 @@ import { apiGet } from "../http";
 import { FetchOptions, FetchResult } from "../types/shop";
 
 export async function fetchShops(
-    { query, page, limit, signal }: FetchOptions,
+    { query, category, page, limit, signal }: FetchOptions,
 ) {
     return await apiGet<FetchResult>("/shops", {
-        params: { query, page, limit },
+        params: { query, category, page, limit },
         signal,
     });
 }

@@ -62,7 +62,7 @@ export function CustomCard({
     return (
         <CardAnimation>
             <article
-                className={`group overflow-hidden rounded-[28px] border border-black/6 bg-white shadow-[0_22px_50px_rgba(85,20,31,0.12)] transition-transform duration-300 hover:-translate-y-1 ${className ?? ""}`}
+                className={`cursor-pointer group overflow-hidden rounded-[28px] border border-black/6 bg-white shadow-[0_22px_50px_rgba(85,20,31,0.12)] transition-transform duration-300 hover:-translate-y-1 ${className ?? ""}`}
             >
                 <div className="relative h-56 overflow-hidden">
                     {image ? (
@@ -72,19 +72,16 @@ export function CustomCard({
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                     ) : null}
-                    <div
-                        className="absolute inset-0 opacity-90"
-                        style={{ background: heroGradient }}
-                    />
+
+                    {/* Image Filter */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-black/10" />
 
                     <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                         <span
-                            className={`rounded-full px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] ${
-                                open
-                                    ? "bg-[#d6f8de] text-[#0f6a2f]"
-                                    : "bg-[#ffe0e4] text-[#b41f3f]"
-                            }`}
+                            className={`rounded-full px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] ${open
+                                ? "bg-[#d6f8de] text-[#0f6a2f]"
+                                : "bg-[#ffe0e4] text-[#b41f3f]"
+                                }`}
                         >
                             {open ? "Open now" : "Closed"}
                         </span>
@@ -94,7 +91,7 @@ export function CustomCard({
                     </div>
 
                     <div className="absolute right-4 top-4 rounded-full bg-white/92 px-3 py-1.5 text-sm font-semibold text-secondary shadow-sm">
-                        {rating.toFixed(1)} ★
+                        {rating.toFixed(1)} <span className="text-yellow-500">★</span>
                     </div>
 
                     <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4 text-white">
