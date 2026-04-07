@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Shop {
+  id String @id @default(cuid())
+  slug String @unique
+  name String
+  image String?
+  rating Float?
+  reviewCount Int?
+  distance Float?
+  eta String?
+  neighborhood String?
+  open Boolean?
+  openTime String?
+  closeTime String?
+  address String?
+  phone String?
+  description String?
+  cuisine String?
+  featuredCategorySlugs String?
+  menuSections MenuSection[]
+  menuItems MenuItem[]
+  heroGradient String?
+  mapPositionX Int?
+  mapPositionY Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MenuSection {
+  id String @id @default(cuid())
+
+  shopId String
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  name String
+  sortOrder Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  menuItems MenuItem[]
+
+}
+
+model MenuItem {
+  id String @id @default(cuid())
+
+  shopId String
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  sectionId String
+  section MenuSection @relation(fields: [sectionId], references: [id])
+  
+  name String
+  description String?
+  price Float
+  image String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
