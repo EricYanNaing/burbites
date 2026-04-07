@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto, Playwrite_IE } from "next/font/google";
 import "./globals.css";
-import { AppShell } from "@/components/layouts/app-shell";
+import { ShellSwitch } from "@/components/layouts/shell-switch";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -28,11 +28,10 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${roboto.variable} ${playwrite_ie.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <AppShell>
-          {children}
-        </AppShell>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <ShellSwitch>{children}</ShellSwitch>
       </body>
     </html>
   );

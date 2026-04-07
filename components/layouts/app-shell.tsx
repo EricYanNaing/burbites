@@ -1,3 +1,5 @@
+"use client";
+
 import { MotionConfig } from "motion/react";
 import { Header } from "./header";
 import { ShellReveal } from "../animations/reveal";
