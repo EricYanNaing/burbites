@@ -1,4 +1,4 @@
-import { PlatformCategory } from "../types/shop";
+import { PlatformCategory, Shop } from "../types/shop";
 import { shops } from "../data/mock-data";
 
 export async function getShops(query?: string, category?: PlatformCategory) {
@@ -6,7 +6,7 @@ export async function getShops(query?: string, category?: PlatformCategory) {
     const normalizedCategory =
         category && category !== "all" ? category : undefined;
 
-    return shops.filter((shop) => {
+    return shops.filter((shop:Shop) => {
         const matchesCategory = normalizedCategory
             ? shop.featuredCategorySlugs.includes(normalizedCategory)
             : true;

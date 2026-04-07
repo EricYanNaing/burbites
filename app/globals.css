@@ -27,6 +27,8 @@
     --foreground: #ededed;
     --color-primary: #E31837;
     --color-secondary: oklch(0.24 0.03 37);
+    --color-green: #10b981;
+    --color-red: #E31837;
   }
 }
 
