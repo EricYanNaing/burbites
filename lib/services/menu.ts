@@ -1,5 +1,5 @@
-import { menuItems, menuSections, shops } from "../data/mock-data";
-import { MenuItem, MenuSection, Shop } from "../types/shop";
+import { menuItems, menuSections } from "../data/mock-data";
+import { MenuItem, MenuSection } from "../types/shop";
 
 export async function getMenuByShopId(id?:string) {
     return menuItems.filter((menu:MenuItem) => menu.shopId === id);
@@ -14,18 +14,23 @@ export async function getMenuSectionsByShopId(id?:string) {
 }
 
 export async function getShopMenuListBySection(id?:string) {
-    const sections = await getMenuSectionsByShopId(id);
-    const menuItems = await getMenuByShopId(id);
-    console.log(menuItems)
-    if(!sections) return [];
-    const menuList =sections.map((section) => {
+    const sections = (await getMenuSectionsByShopId(id)).sort(
+        (left, right) => left.sortOrder - right.sortOrder,
+    );
+    const shopMenuItems = await getMenuByShopId(id);
+
+    if (!sections.length) {
+        return [];
+    }
+
+    const menuList = sections.map((section) => {
         return {
             menuSectionId: section.id,
             menuSectionName: section.name,
             menuSectionSortOrder: section.sortOrder,
-            menu: menuItems.filter((menu:MenuItem) => menu.sectionId === section.id)
+            menu: shopMenuItems.filter((menu:MenuItem) => menu.sectionId === section.id)
         }
-    })
+    });
 
     return menuList;
 }
