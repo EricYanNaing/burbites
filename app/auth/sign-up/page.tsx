@@ -1,13 +1,10 @@
-"use client";
-
-import { AuthView } from "@neondatabase/auth/react/ui";
+import { AuthForm } from "@/components/auth/auth-form";
+import { AuthShell } from "@/components/auth/auth-shell";
 
 export default function SignUpPage() {
-    return (
-        <div className="mx-auto flex min-h-screen w-full max-w-lg items-center justify-center px-6 py-10">
-            <div className="w-full">
-                <AuthView path="sign-up" />
-            </div>
-        </div>
-    );
+  return (
+    <AuthShell mode="sign-up">
+      <AuthForm mode="sign-up" />
+    </AuthShell>
+  );
 }
