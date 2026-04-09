@@ -9,10 +9,11 @@ import {
 import type { ReactNode } from "react";
 
 type AuthMode = "sign-in" | "sign-up";
+type ExtendedAuthMode = AuthMode | "verify-email";
 
 type AuthShellProps = {
   children: ReactNode;
-  mode: AuthMode;
+  mode: ExtendedAuthMode;
 };
 
 const shellCopy = {
@@ -40,8 +41,20 @@ const shellCopy = {
     policyDescription:
       "Signup is open for users, but admin privileges are not granted automatically. Those remain provisioned separately.",
   },
+  "verify-email": {
+    badge: "Verification required",
+    eyebrow: "Email confirmation",
+    title: "Enter the verification code from your email.",
+    description:
+      "Neon sent a verification code to your inbox. Confirm the code here before you continue into the app.",
+    switchLabel: "Entered the wrong email?",
+    switchHref: "/auth/sign-up",
+    switchCta: "Start again",
+    policyDescription:
+      "Verification confirms ownership of the email address. Account roles and elevated permissions still stay separate from signup.",
+  },
 } satisfies Record<
-  AuthMode,
+  ExtendedAuthMode,
   {
     badge: string;
     eyebrow: string;

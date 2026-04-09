@@ -3,6 +3,7 @@
 import { signInActionState, signUpActionState } from "@/app/auth/action";
 import { Eye, EyeOff, LockKeyhole, Mail, UserRound } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
@@ -24,6 +25,7 @@ const formCopy = {
     footerHref: "/auth/sign-up",
     footerCta: "Create one",
     helperText: "Use the email and password already registered to your account.",
+    nextStep: "Dashboard",
   },
   "sign-up": {
     label: "Create account",
@@ -35,6 +37,7 @@ const formCopy = {
     footerHref: "/auth/sign-in",
     footerCta: "Sign in",
     helperText: "Admin permissions, if needed, are assigned separately after signup.",
+    nextStep: "Verify email",
   },
 } satisfies Record<
   AuthMode,
@@ -47,18 +50,23 @@ const formCopy = {
     footerHref: string;
     footerCta: string;
     helperText: string;
+    nextStep: string;
   }
 >;
 
 export function AuthForm({ mode }: AuthFormProps) {
   const content = formCopy[mode];
   const action = mode === "sign-in" ? signInActionState : signUpActionState;
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified");
+  const defaultEmail = searchParams.get("email") ?? "";
 
   const [formState, formAction] = useActionState<AuthState, FormData>(
     action,
     undefined,
   );
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState(defaultEmail);
 
   return (
     <div className="space-y-8 text-secondary">
@@ -79,7 +87,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <div className="grid gap-3 rounded-[28px] border border-[#efe4dc] bg-[#faf6f2] p-4 sm:grid-cols-3">
         <InfoPill label="Auth" value="Email only" />
         <InfoPill label="Permissions" value="Role based" />
-        <InfoPill label="Next step" value="Dashboard" />
+        <InfoPill label="Next step" value={content.nextStep} />
       </div>
 
       <form action={formAction} className="space-y-4">
@@ -99,6 +107,8 @@ export function AuthForm({ mode }: AuthFormProps) {
           type="email"
           autoComplete="email"
           placeholder="you@example.com"
+          value={email}
+          onChange={setEmail}
           icon={<Mail className="h-5 w-5" />}
         />
 
@@ -132,6 +142,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             className="rounded-[22px] border border-primary/20 bg-primary/10 px-4 py-3 text-sm leading-6 text-primary"
           >
             {formState.error}
+          </div>
+        ) : null}
+        {verified === "1" ? (
+          <div
+            aria-live="polite"
+            className="rounded-[22px] border border-[#cce9da] bg-[#eef9f2] px-4 py-3 text-sm leading-6 text-[#177245]"
+          >
+            Your email is verified. Sign in to continue.
           </div>
         ) : null}
 
@@ -171,15 +189,19 @@ function AuthField({
   placeholder,
   trailing,
   type = "text",
+  value,
+  onChange,
 }: {
   autoComplete?: string;
   helper?: string;
   icon: ReactNode;
   label: string;
   name: string;
+  onChange?: (value: string) => void;
   placeholder: string;
   trailing?: ReactNode;
   type?: string;
+  value?: string;
 }) {
   return (
     <label className="block space-y-2">
@@ -192,6 +214,12 @@ function AuthField({
           type={type}
           autoComplete={autoComplete}
           placeholder={placeholder}
+          value={value}
+          onChange={
+            onChange
+              ? (event) => onChange(event.target.value)
+              : undefined
+          }
           className="w-full border-0 bg-transparent text-[0.98rem] text-secondary outline-none placeholder:text-secondary/34"
         />
         {trailing}
