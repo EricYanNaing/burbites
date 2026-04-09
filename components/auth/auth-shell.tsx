@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/components/i18n/locale-provider";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -16,77 +19,34 @@ type AuthShellProps = {
   mode: ExtendedAuthMode;
 };
 
-const shellCopy = {
-  "sign-in": {
-    badge: "Secure access",
-    eyebrow: "Dashboard login",
-    title: "Sign in to your Burbites account.",
-    description:
-      "Use your registered email and password to continue. New users can create an account from the sign-up page.",
-    switchLabel: "No account yet?",
-    switchHref: "/auth/sign-up",
-    switchCta: "Create account",
-    policyDescription:
-      "Anyone can register for an account. Elevated dashboard permissions are still assigned separately by the owner.",
-  },
-  "sign-up": {
-    badge: "New account",
-    eyebrow: "User onboarding",
-    title: "Create your Burbites account.",
-    description:
-      "Register with your name, email, and password. After signup, role-based permissions still determine what you can access.",
-    switchLabel: "Already registered?",
-    switchHref: "/auth/sign-in",
-    switchCta: "Go to sign in",
-    policyDescription:
-      "Signup is open for users, but admin privileges are not granted automatically. Those remain provisioned separately.",
-  },
-  "verify-email": {
-    badge: "Verification required",
-    eyebrow: "Email confirmation",
-    title: "Enter the verification code from your email.",
-    description:
-      "Neon sent a verification code to your inbox. Confirm the code here before you continue into the app.",
-    switchLabel: "Entered the wrong email?",
-    switchHref: "/auth/sign-up",
-    switchCta: "Start again",
-    policyDescription:
-      "Verification confirms ownership of the email address. Account roles and elevated permissions still stay separate from signup.",
-  },
-} satisfies Record<
-  ExtendedAuthMode,
-  {
-    badge: string;
-    eyebrow: string;
-    title: string;
-    description: string;
-    switchLabel: string;
-    switchHref: string;
-    switchCta: string;
-    policyDescription: string;
-  }
->;
-
-const authHighlights = [
-  {
-    title: "Email-only auth",
-    description: "A single credential flow keeps access predictable and easier to manage.",
-    Icon: ShieldCheck,
-  },
-  {
-    title: "Role-aware access",
-    description: "Accounts can exist without automatically unlocking every dashboard view.",
-    Icon: LayoutDashboard,
-  },
-  {
-    title: "Managed permissions",
-    description: "Sensitive privileges stay under manual control even when signup is enabled.",
-    Icon: BadgeCheck,
-  },
-] as const;
+const switchHrefByMode: Record<ExtendedAuthMode, string> = {
+  "sign-in": "/auth/sign-up",
+  "sign-up": "/auth/sign-in",
+  "verify-email": "/auth/sign-up",
+};
 
 export function AuthShell({ children, mode }: AuthShellProps) {
-  const content = shellCopy[mode];
+  const { messages } = useI18n();
+  const content = messages.authShell.modes[mode];
+  const highlights = messages.authShell.highlights;
+
+  const authHighlights = [
+    {
+      title: highlights.emailOnly.title,
+      description: highlights.emailOnly.description,
+      Icon: ShieldCheck,
+    },
+    {
+      title: highlights.roleAware.title,
+      description: highlights.roleAware.description,
+      Icon: LayoutDashboard,
+    },
+    {
+      title: highlights.managedPermissions.title,
+      description: highlights.managedPermissions.description,
+      Icon: BadgeCheck,
+    },
+  ] as const;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#f4eee8] text-secondary">
@@ -103,10 +63,10 @@ export function AuthShell({ children, mode }: AuthShellProps) {
                 href="/"
                 className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-4 py-2 backdrop-blur-md transition hover:bg-white/10"
               >
-                <Image src="/logo.png" alt="Burbites logo" width={42} height={42} />
+                <Image src="/logo.png" alt={messages.header.logoAlt} width={42} height={42} />
                 <div>
                   <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-white/60">
-                    Auth center
+                    {messages.authShell.authCenter}
                   </p>
                   <p className="font-display text-lg text-white">Burbites</p>
                 </div>
@@ -152,14 +112,14 @@ export function AuthShell({ children, mode }: AuthShellProps) {
 
             <div className="rounded-[28px] border border-white/10 bg-white/6 p-5">
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/56">
-                Access model
+                {messages.authShell.accessModel}
               </p>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
                 <p className="max-w-md text-sm leading-6 text-white/72">
                   {content.policyDescription}
                 </p>
                 <Link
-                  href={content.switchHref}
+                  href={switchHrefByMode[mode]}
                   className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/8"
                 >
                   {content.switchLabel} {content.switchCta}

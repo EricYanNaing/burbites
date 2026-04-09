@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useI18n } from "@/components/i18n/locale-provider";
 
 type CustomInputProps = {
     placeholder?: string;
@@ -8,9 +9,11 @@ type CustomInputProps = {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function CustomInput({ placeholder = "Search dishes...", value, onChange }: CustomInputProps) {
+export function CustomInput({ placeholder, value, onChange }: CustomInputProps) {
+    const { messages } = useI18n();
     const [focused, setFocused] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    const resolvedPlaceholder = placeholder ?? messages.dishes.searchPlaceholder;
 
     const handleClear = () => {
         onChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
@@ -73,7 +76,7 @@ export function CustomInput({ placeholder = "Search dishes...", value, onChange 
                     onChange={onChange}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    placeholder={placeholder}
+                    placeholder={resolvedPlaceholder}
                     className="flex-1 bg-transparent outline-none text-sm py-3.5 pr-2"
                     style={{
                         fontFamily: "var(--font-sans), sans-serif",
@@ -94,7 +97,7 @@ export function CustomInput({ placeholder = "Search dishes...", value, onChange 
                             color: "#E31837",
                             transition: "background 0.2s",
                         }}
-                        aria-label="Clear search"
+                        aria-label={messages.dishes.clear}
                     >
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                             <path d="M1.5 1.5L8.5 8.5M8.5 1.5L1.5 8.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />

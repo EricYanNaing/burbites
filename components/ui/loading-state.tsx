@@ -5,7 +5,7 @@ type LoadingStateProps = {
 };
 
 export function LoadingState({
-    label = "Loading dishes",
+    label = "",
     variant = "cards",
     count = 3,
 }: LoadingStateProps) {

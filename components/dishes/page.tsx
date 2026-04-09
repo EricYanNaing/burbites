@@ -12,67 +12,85 @@ import useEmblaCarousel from "embla-carousel-react";
 import { platformCategories } from "@/lib/constant";
 import { getPlatformCategoryBySlug } from "@/lib/services/category";
 import { Check } from "lucide-react";
+import { useI18n } from "@/components/i18n/locale-provider";
+import type { Messages } from "@/lib/i18n";
 
 const PAGE_SIZE = 4;
 
-function getResultSummary(total: number, search: string, category: PlatformCategory) {
+function getResultSummary(
+    total: number,
+    search: string,
+    category: PlatformCategory,
+    t: Messages["dishes"],
+) {
     const selectedCategory = getPlatformCategoryBySlug(category);
-    const categoryLabel = selectedCategory?.label ?? "All";
+    const categoryLabel = selectedCategory?.label ?? platformCategories[0]?.label ?? "";
 
     if (search.trim() && category !== "all") {
-        return `${total} ${categoryLabel.toLowerCase()} matches`;
+        return t.resultSummarySearchCategory(total, categoryLabel);
     }
 
     if (search.trim()) {
-        return `${total} matches`;
+        return t.resultSummarySearchOnly(total);
     }
 
     if (category !== "all") {
-        return `${total} ${categoryLabel.toLowerCase()} picks`;
+        return t.resultSummaryCategoryOnly(total, categoryLabel);
     }
 
-    return `${total} open picks`;
+    return t.resultSummaryDefault(total);
 }
 
-function getSectionDescription(search: string, category: PlatformCategory) {
+function getSectionDescription(
+    search: string,
+    category: PlatformCategory,
+    t: Messages["dishes"],
+) {
     const selectedCategory = getPlatformCategoryBySlug(category);
-    const categoryLabel = selectedCategory?.label ?? "All";
+    const categoryLabel = selectedCategory?.label ?? platformCategories[0]?.label ?? "";
 
     if (search.trim() && category !== "all") {
-        return `Showing nearby Burmese kitchens for "${search}" in ${categoryLabel}.`;
+        return t.sectionDescriptionSearchCategory(search, categoryLabel);
     }
 
     if (search.trim()) {
-        return `Showing the best Burmese kitchens for "${search}".`;
+        return t.sectionDescriptionSearchOnly(search);
     }
 
     if (category !== "all") {
-        return `${categoryLabel} picks from nearby Burmese kitchens with strong ratings and quick pickup.`;
+        return t.sectionDescriptionCategoryOnly(categoryLabel);
     }
 
-    return "Strong broths, tea-house classics, and fast pickup spots near you.";
+    return t.sectionDescriptionDefault;
 }
 
-function getEmptyDescription(search: string, category: PlatformCategory) {
+function getEmptyDescription(
+    search: string,
+    category: PlatformCategory,
+    t: Messages["dishes"],
+) {
     const selectedCategory = getPlatformCategoryBySlug(category);
-    const categoryLabel = selectedCategory?.label ?? "All";
+    const categoryLabel = selectedCategory?.label ?? platformCategories[0]?.label ?? "";
 
     if (search.trim() && category !== "all") {
-        return `No kitchens matched "${search}" in ${categoryLabel}. Try a different keyword or switch categories.`;
+        return t.emptyDescriptionSearchCategory(search, categoryLabel);
     }
 
     if (search.trim()) {
-        return `No kitchens matched "${search}". Try a different dish, neighborhood, or cuisine.`;
+        return t.emptyDescriptionSearchOnly(search);
     }
 
     if (category !== "all") {
-        return `No nearby kitchens are showing ${categoryLabel} right now. Try another category.`;
+        return t.emptyDescriptionCategoryOnly(categoryLabel);
     }
 
-    return "No nearby kitchens are available right now.";
+    return t.emptyDescriptionDefault;
 }
 
 export function DishesPage() {
+    const { messages } = useI18n();
+    const t = messages.dishes;
+
     const [mounted, setMounted] = useState(false);
     const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
@@ -196,7 +214,7 @@ export function DishesPage() {
             {/* Search Bar */}
             <div className="">
                 <CustomInput
-                    placeholder="Search dishes, cuisines..."
+                    placeholder={t.searchPlaceholder}
                     value={searchInput}
                     onChange={handleSearchChange}
                 />
@@ -207,12 +225,14 @@ export function DishesPage() {
                 <div className="flex items-center justify-between gap-3">
                     <div className="space-y-1">
                         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary/70">
-                            Browse by category
+                            {t.browseByCategory}
                         </p>
                         <p className="text-sm text-secondary/65">
                             {selected === "all"
-                                ? "Swipe through Burmese favorites and tap a lane to narrow the list."
-                                : `Focused on ${selectedCategory?.label}. Tap another category to compare quickly.`}
+                                ? t.browseHintAll
+                                : t.browseHintFocused(
+                                    selectedCategory?.label ?? platformCategories[0]?.label ?? "",
+                                )}
                         </p>
                     </div>
 
@@ -222,7 +242,7 @@ export function DishesPage() {
                             onClick={() => handleCategorySelect("all", 0)}
                             className="shrink-0 rounded-full border border-primary/15 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary transition hover:border-primary/35 hover:bg-primary/5"
                         >
-                            Clear
+                            {t.clear}
                         </button>
                     ) : null}
                 </div>
@@ -296,37 +316,39 @@ export function DishesPage() {
                 <div className="flex items-end justify-between gap-3">
                     <div className="space-y-1">
                         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary/70">
-                            Nearby kitchens
+                            {t.nearbyKitchens}
                         </p>
                         <h2 className="text-[1.7rem] font-black leading-none text-secondary">
-                            Burmese spots worth the trip
+                            {t.nearbyKitchensTitle}
                         </h2>
                     </div>
 
                     {mounted && hasFetched ? (
                         <span className="rounded-full border border-primary/10 bg-primary/6 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                            {getResultSummary(total, search, selected)}
+                            {getResultSummary(total, search, selected, t)}
                         </span>
                     ) : null}
                 </div>
 
                 <p className="max-w-[22rem] text-sm leading-6 text-secondary/65">
-                    {getSectionDescription(search, selected)}
+                    {getSectionDescription(search, selected, t)}
                 </p>
 
                 {!mounted || (!hasFetched && shops.length === 0) ? (
                     <LoadingState
                         label={
                             selected === "all"
-                                ? "Finding nearby kitchens"
-                                : `Finding ${selectedCategory?.label?.toLowerCase()} kitchens`
+                                ? t.findingNearbyKitchens
+                                : t.findingCategoryKitchens(
+                                    selectedCategory?.label ?? platformCategories[0]?.label ?? "",
+                                )
                         }
                     />
                 ) : null}
                 {mounted && hasFetched && !loading && shops.length === 0 ? (
                     <EmptyState
-                        title="No kitchens found"
-                        description={getEmptyDescription(search, selected)}
+                        title={t.emptyTitle}
+                        description={getEmptyDescription(search, selected, t)}
                     />
                 ) : null}
                 {mounted && shops.length > 0 ? (
@@ -339,13 +361,13 @@ export function DishesPage() {
                             loading && shops.length > 0 ? (
                                 <LoadingState
                                     variant="inline"
-                                    label="Loading more kitchens"
+                                    label={t.loadingMoreKitchens}
                                 />
                             ) : null
                         }
                         endMessage={
                             <p className="py-4 text-center text-sm font-medium text-secondary/55">
-                                You have reached the end of today&apos;s nearby picks.
+                                {t.endOfPicks}
                             </p>
                         }
                     >

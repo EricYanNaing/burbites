@@ -6,6 +6,8 @@ import { getShopMenuListBySection } from "@/lib/services/menu";
 import { getPlatformCategoryBySlug } from "@/lib/services/category";
 import { MenuItem, MenuTag } from "@/lib/types/shop";
 import Link from "next/link";
+import { getServerMessages } from "@/lib/i18n/server";
+import type { Messages } from "@/lib/i18n";
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
@@ -31,16 +33,16 @@ function formatMenuTag(tag: MenuTag) {
         .join(" ");
 }
 
-function getSectionPreview(items: MenuItem[]) {
+function getSectionPreview(items: MenuItem[], t: Messages["shopDetail"]) {
     if (!items.length) {
-        return "Fresh picks from the kitchen";
+        return t.freshPicks;
     }
 
     const names = items.slice(0, 2).map((item) => item.name);
     const preview = names.join(" • ");
     const remaining = items.length - names.length;
 
-    return remaining > 0 ? `${preview} +${remaining} more` : preview;
+    return remaining > 0 ? t.sectionPreviewMore(preview, remaining) : preview;
 }
 
 type ShopDetailProps = {
@@ -49,6 +51,7 @@ type ShopDetailProps = {
 
 export default async function ShopDetailPage({ params }: ShopDetailProps) {
     const { id } = await params;
+    const t = (await getServerMessages()).shopDetail;
 
     const shop = await getShopDetail(id);
     const menuList = await getShopMenuListBySection(id);
@@ -61,7 +64,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
         (count, section) => count + section.menu.length,
         0,
     );
-    const featuredSection = menuList[0]?.menuSectionName ?? "House picks";
+    const featuredSection = menuList[0]?.menuSectionName ?? t.housePicks;
 
     return (
         <main className="pb-16">
@@ -85,7 +88,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                         <div>
                                             <CustomBadge
                                                 className={`w-fit tracking-[0.14em] ${shop.open ? "!bg-[#0d9488]" : "!bg-[#e11d48]"}`}
-                                                label={shop.open ? "Open Now" : "Closed Now"}
+                                                label={shop.open ? t.openNow : t.closedNow}
                                             />
                                             <span className="rounded-full bg-secondary/6 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-secondary/75">
                                                 {shop.neighborhood}
@@ -93,7 +96,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                         </div>
                                         <Link href={`/`} className="flex items-center gap-2 text-secondary/72 text-sm rounded-full bg-secondary/6 px-3 py-1">
                                             <MoveLeft />
-                                            Back to home
+                                            {t.backToHome}
                                         </Link>
                                     </div>
 
@@ -109,7 +112,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
 
                                 <div className="rounded-[22px] bg-secondary px-4 py-3 text-white shadow-lg">
                                     <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-white/70">
-                                        Guest rating
+                                        {t.guestRating}
                                     </p>
                                     <div className="mt-2 flex items-center gap-2 text-lg font-bold">
                                         <Star size={18} className="fill-current" />
@@ -124,21 +127,21 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                             <div className="grid gap-3 text-sm text-secondary/78 sm:grid-cols-3">
                                 <div className="rounded-2xl border border-black/6 bg-[#fff8f5] px-4 py-3">
                                     <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                        Service window
+                                        {t.serviceWindow}
                                     </p>
                                     <div className="mt-2 flex items-center gap-2 font-semibold text-secondary">
                                         <Clock3 size={16} className="text-primary" />
                                         <p>
                                             {shop.open
                                                 ? `${shop.openTime} - ${shop.closeTime}`
-                                                : `Opens ${shop.openTime}`}
+                                                : t.opensAt(shop.openTime)}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="rounded-2xl border border-black/6 bg-[#fff8f5] px-4 py-3">
                                     <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                        Address
+                                        {t.address}
                                     </p>
                                     <div className="mt-2 flex items-start gap-2 font-semibold text-secondary">
                                         <MapPin size={16} className="mt-0.5 shrink-0 text-primary" />
@@ -148,7 +151,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
 
                                 <div className="rounded-2xl border border-black/6 bg-[#fff8f5] px-4 py-3">
                                     <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                        Contact
+                                        {t.contact}
                                     </p>
                                     <div className="mt-2 flex items-center gap-2 font-semibold text-secondary">
                                         <Phone size={16} className="shrink-0 text-primary" />
@@ -167,21 +170,20 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                     <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-2xl">
                             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary/70">
-                                Today&apos;s menu
+                                {t.todaysMenu}
                             </p>
                             <h2 className="mt-2 text-2xl font-black text-secondary sm:text-[2rem]">
-                                Built for faster scanning and easier deciding
+                                {t.menuHeading}
                             </h2>
                             <p className="mt-3 text-sm leading-6 text-secondary/70 sm:text-[0.95rem]">
-                                Jump between sections, compare dishes side by side, and see price, category,
-                                and standout tags without digging through a long plain list.
+                                {t.menuDescription}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                             <div className="rounded-[22px] border border-black/6 bg-white px-4 py-3 shadow-sm">
                                 <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                    Sections
+                                    {t.sections}
                                 </p>
                                 <p className="mt-2 text-xl font-black text-secondary">
                                     {menuList.length}
@@ -190,7 +192,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
 
                             <div className="rounded-[22px] border border-black/6 bg-white px-4 py-3 shadow-sm">
                                 <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                    Dishes
+                                    {t.dishes}
                                 </p>
                                 <p className="mt-2 text-xl font-black text-secondary">
                                     {totalItems}
@@ -199,7 +201,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
 
                             <div className="rounded-[22px] border border-black/6 bg-white px-4 py-3 shadow-sm">
                                 <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                    Highlight
+                                    {t.highlight}
                                 </p>
                                 <p className="mt-2 text-sm font-bold text-secondary">
                                     {featuredSection}
@@ -208,7 +210,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
 
                             <div className="rounded-[22px] border border-black/6 bg-white px-4 py-3 shadow-sm">
                                 <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                    ETA
+                                    {t.eta}
                                 </p>
                                 <p className="mt-2 text-sm font-bold text-secondary">
                                     {shop.eta}
@@ -222,16 +224,16 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                             <div className="flex flex-col gap-3 border-b border-black/6 pb-4 sm:flex-row sm:items-end sm:justify-between">
                                 <div>
                                     <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary/70">
-                                        Browse sections
+                                        {t.browseSections}
                                     </p>
                                     <p className="mt-2 text-sm leading-6 text-secondary/65">
-                                        Jump straight to the lane you want instead of scanning one long list.
+                                        {t.browseSectionsDescription}
                                     </p>
                                 </div>
 
                                 <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#fff6f2] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-secondary/60">
                                     <span className="h-2 w-2 rounded-full bg-primary" />
-                                    {menuList.length} menu sections
+                                    {t.menuSectionsCount(menuList.length)}
                                 </div>
                             </div>
 
@@ -247,7 +249,7 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                                 {String(index + 1).padStart(2, "0")}
                                             </span>
                                             <span className="rounded-full bg-primary/8 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-primary">
-                                                {menuSection.menu.length} dishes
+                                                {t.dishesCount(menuSection.menu.length)}
                                             </span>
                                         </div>
 
@@ -255,12 +257,12 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                             {menuSection.menuSectionName}
                                         </p>
                                         <p className="mt-2 text-sm leading-6 text-secondary/62">
-                                            {getSectionPreview(menuSection.menu)}
+                                            {getSectionPreview(menuSection.menu, t)}
                                         </p>
 
                                         <div className="mt-4 flex items-center justify-between border-t border-black/6 pt-3">
                                             <span className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                                Jump to section
+                                                {t.jumpToSection}
                                             </span>
                                             <ArrowUpRight
                                                 size={16}
@@ -283,19 +285,19 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                 <div className="flex flex-col gap-3 border-b border-black/6 pb-4 sm:flex-row sm:items-end sm:justify-between">
                                     <div>
                                         <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary/70">
-                                            Section {String(index + 1).padStart(2, "0")}
+                                            {t.sectionLabel(index + 1)}
                                         </p>
                                         <h3 className="mt-2 text-xl font-black text-secondary sm:text-2xl">
                                             {menuSection.menuSectionName}
                                         </h3>
                                         <p className="mt-2 text-sm text-secondary/65">
-                                            {menuSection.menu.length} dishes in this lane
+                                            {t.dishesInLane(menuSection.menu.length)}
                                         </p>
                                     </div>
 
                                     <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#fff6f2] px-3 py-2 text-sm font-semibold text-secondary">
                                         <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-                                        Freshly prepared for pickup
+                                        {t.freshlyPrepared}
                                     </div>
                                 </div>
 
@@ -342,13 +344,13 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                                                         {item.name}
                                                                     </h4>
                                                                     <p className="mt-2 text-sm leading-6 text-secondary/68">
-                                                                        {item.description ?? "Prepared fresh with the kitchen's signature Burmese flavors."}
+                                                                        {item.description ?? t.defaultDishDescription}
                                                                     </p>
                                                                 </div>
 
                                                                 <div className="shrink-0 rounded-[22px] bg-secondary px-4 py-3 text-white shadow-sm">
                                                                     <p className="text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-white/70">
-                                                                        Price
+                                                                        {t.price}
                                                                     </p>
                                                                     <p className="mt-1 text-xl font-black">
                                                                         {formatPrice(item.price)}
@@ -364,11 +366,11 @@ export default async function ShopDetailPage({ params }: ShopDetailProps) {
                                                                         }`}
                                                                 >
                                                                     <span className="h-2 w-2 rounded-full bg-current" />
-                                                                    {item.available ? "Available today" : "Unavailable"}
+                                                                    {item.available ? t.availableToday : t.unavailable}
                                                                 </div>
 
                                                                 <p className="text-xs font-medium text-secondary/52">
-                                                                    {category?.description ?? "Fresh from the kitchen"}
+                                                                    {category?.description ?? t.freshFromKitchen}
                                                                 </p>
                                                             </div>
                                                         </div>

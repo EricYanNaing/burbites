@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth/server";
+import { getServerMessages } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 
 type AuthActionState = {
@@ -8,7 +9,7 @@ type AuthActionState = {
   success?: string;
 };
 
-function getErrorMessage(error: unknown) {
+function getErrorMessage(error: unknown, fallbackMessage: string) {
   if (typeof error === "object" && error !== null && "message" in error) {
     const message = (error as { message?: unknown }).message;
     if (typeof message === "string" && message.length > 0) {
@@ -16,7 +17,7 @@ function getErrorMessage(error: unknown) {
     }
   }
 
-  return "Something went wrong. Please try again.";
+  return fallbackMessage;
 }
 
 function getErrorCode(error: unknown) {
@@ -32,7 +33,7 @@ function getErrorCode(error: unknown) {
 
 function isEmailVerificationError(error: unknown) {
   const code = getErrorCode(error).toLowerCase();
-  const message = getErrorMessage(error).toLowerCase();
+  const message = getErrorMessage(error, "").toLowerCase();
 
   return (
     code.includes("confirm") ||
@@ -47,6 +48,7 @@ function getEncodedEmail(formData: FormData) {
 }
 
 export async function signUpAction(formData: FormData) {
+  const fallbackMessage = (await getServerMessages()).authAction.fallbackError;
   const { data, error } = await auth.signUp.email({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -54,7 +56,7 @@ export async function signUpAction(formData: FormData) {
   });
 
   if (error) {
-    return { error: getErrorMessage(error) };
+    return { error: getErrorMessage(error, fallbackMessage) };
   }
 
   if (!data?.user.emailVerified) {
@@ -68,6 +70,7 @@ export async function signUpActionState(
   _state: AuthActionState | undefined,
   formData: FormData,
 ) {
+  const fallbackMessage = (await getServerMessages()).authAction.fallbackError;
   const { data, error } = await auth.signUp.email({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -75,7 +78,7 @@ export async function signUpActionState(
   });
 
   if (error) {
-    return { error: getErrorMessage(error) };
+    return { error: getErrorMessage(error, fallbackMessage) };
   }
 
   if (!data?.user.emailVerified) {
@@ -86,6 +89,7 @@ export async function signUpActionState(
 }
 
 export async function signInAction(formData: FormData) {
+  const fallbackMessage = (await getServerMessages()).authAction.fallbackError;
   const { error } = await auth.signIn.email({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -96,7 +100,7 @@ export async function signInAction(formData: FormData) {
       redirect(`/auth/verify-email?email=${getEncodedEmail(formData)}&source=sign-in`);
     }
 
-    return { error: getErrorMessage(error) };
+    return { error: getErrorMessage(error, fallbackMessage) };
   }
 
   redirect("/dashboard");
@@ -106,6 +110,7 @@ export async function signInActionState(
   _state: AuthActionState | undefined,
   formData: FormData,
 ) {
+  const fallbackMessage = (await getServerMessages()).authAction.fallbackError;
   const { error } = await auth.signIn.email({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -116,7 +121,7 @@ export async function signInActionState(
       redirect(`/auth/verify-email?email=${getEncodedEmail(formData)}&source=sign-in`);
     }
 
-    return { error: getErrorMessage(error) };
+    return { error: getErrorMessage(error, fallbackMessage) };
   }
 
   redirect("/dashboard");

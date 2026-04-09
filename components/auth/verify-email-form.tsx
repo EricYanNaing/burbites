@@ -12,8 +12,11 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { useI18n } from "@/components/i18n/locale-provider";
 
 export function VerifyEmailForm() {
+  const { messages } = useI18n();
+  const t = messages.verifyEmail;
   const router = useRouter();
   const searchParams = useSearchParams();
   const source = searchParams.get("source");
@@ -30,25 +33,25 @@ export function VerifyEmailForm() {
 
   const sourceMessage = useMemo(() => {
     if (verified === "1") {
-      return "Your email is verified. You can sign in now.";
+      return t.sourceVerified;
     }
 
     if (source === "sign-up") {
-      return "Your account was created. Enter the verification code Neon emailed you.";
+      return t.sourceSignUp;
     }
 
     if (source === "sign-in") {
-      return "Your account exists, but the email still needs to be verified before sign-in.";
+      return t.sourceSignIn;
     }
 
-    return "Enter the email verification code to continue.";
-  }, [source, verified]);
+    return t.sourceDefault;
+  }, [source, t.sourceDefault, t.sourceSignIn, t.sourceSignUp, t.sourceVerified, verified]);
 
   async function handleVerify(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!email || !otp) {
-      setVerifyError("Enter both your email address and verification code.");
+      setVerifyError(t.enterBothFields);
       return;
     }
 
@@ -63,7 +66,7 @@ export function VerifyEmailForm() {
     setIsVerifying(false);
 
     if (error) {
-      setVerifyError(error.message || "Could not verify the code. Try again.");
+      setVerifyError(error.message || t.verifyFailed);
       return;
     }
 
@@ -79,7 +82,7 @@ export function VerifyEmailForm() {
     event.preventDefault();
 
     if (!email) {
-      setResendError("Enter your email address before requesting another code.");
+      setResendError(t.emailRequiredForResend);
       setResendSuccess(null);
       return;
     }
@@ -97,23 +100,23 @@ export function VerifyEmailForm() {
 
     if (error) {
       setResendError(
-        error.message || "Could not send a new verification code right now.",
+        error.message || t.resendFailed,
       );
       return;
     }
 
-    setResendSuccess("A new verification code was sent to your email.");
+    setResendSuccess(t.resendSuccess);
   }
 
   return (
     <div className="space-y-8 text-secondary">
       <div className="space-y-3">
         <div className="inline-flex rounded-full border border-primary/12 bg-primary/6 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">
-          Verify email
+          {t.verifyEmail}
         </div>
         <div className="space-y-2">
           <h1 className="text-3xl font-black tracking-[-0.03em] text-secondary sm:text-[2.3rem]">
-            Confirm your email
+            {t.confirmYourEmail}
           </h1>
           <p className="max-w-lg text-sm leading-6 text-secondary/62 sm:text-[0.98rem]">
             {sourceMessage}
@@ -122,14 +125,14 @@ export function VerifyEmailForm() {
       </div>
 
       <div className="grid gap-3 rounded-[28px] border border-[#efe4dc] bg-[#faf6f2] p-4 sm:grid-cols-3">
-        <InfoPill label="Method" value="Email code" />
-        <InfoPill label="Required for" value="First access" />
-        <InfoPill label="After verify" value="Dashboard or sign in" />
+        <InfoPill label={t.method} value={t.methodValue} />
+        <InfoPill label={t.requiredFor} value={t.requiredForValue} />
+        <InfoPill label={t.afterVerify} value={t.afterVerifyValue} />
       </div>
 
       <form onSubmit={handleVerify} className="space-y-4">
         <AuthField
-          label="Email address"
+          label={messages.authForm.emailAddress}
           name="email"
           type="email"
           autoComplete="email"
@@ -140,20 +143,20 @@ export function VerifyEmailForm() {
         />
 
         <AuthField
-          label="Verification code"
+          label={t.verificationCode}
           name="otp"
           type="text"
           autoComplete="one-time-code"
-          placeholder="Enter the code"
+          placeholder={t.verificationCodePlaceholder}
           value={otp}
           onChange={setOtp}
-          helper="Paste the code exactly as it appears in the email."
+          helper={t.verificationCodeHelper}
           icon={<Eye className="h-5 w-5" />}
         />
 
         {verifyError ? <Feedback tone="error">{verifyError}</Feedback> : null}
 
-        <VerifyButton pending={isVerifying} />
+        <VerifyButton pending={isVerifying} pendingLabel={t.verifyPending} actionLabel={t.verifyAction} />
       </form>
 
       <form
@@ -161,25 +164,25 @@ export function VerifyEmailForm() {
         className="space-y-4 rounded-[24px] border border-dashed border-[#e7dacf] bg-[#fcfaf8] p-4"
       >
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-secondary">Didn’t get the code?</p>
+          <p className="text-sm font-semibold text-secondary">{t.didntGetCode}</p>
           <p className="text-sm leading-6 text-secondary/58">
-            Resend a new verification code to the same email address.
+            {t.resendDescription}
           </p>
         </div>
 
         {resendError ? <Feedback tone="error">{resendError}</Feedback> : null}
         {resendSuccess ? <Feedback tone="success">{resendSuccess}</Feedback> : null}
 
-        <ResendButton pending={isResending} />
+        <ResendButton pending={isResending} pendingLabel={t.resendPending} actionLabel={t.resendAction} />
       </form>
 
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-secondary/58">
-        <span>Already verified or want to try signing in?</span>
+        <span>{t.alreadyVerified}</span>
         <Link
           href={`/auth/sign-in${email ? `?email=${encodeURIComponent(email)}` : ""}`}
           className="font-semibold text-primary transition hover:text-[#b9112f]"
         >
-          Back to sign in
+          {t.backToSignIn}
         </Link>
       </div>
     </div>
@@ -263,19 +266,35 @@ function Feedback({
   );
 }
 
-function VerifyButton({ pending }: { pending: boolean }) {
+function VerifyButton({
+  pending,
+  pendingLabel,
+  actionLabel,
+}: {
+  pending: boolean;
+  pendingLabel: string;
+  actionLabel: string;
+}) {
   return (
     <button
       type="submit"
       disabled={pending}
       className="inline-flex w-full items-center justify-center rounded-[22px] bg-secondary px-5 py-4 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(38,25,26,0.16)] transition hover:bg-[#1d1213] disabled:cursor-not-allowed disabled:bg-secondary/70"
     >
-      {pending ? "Verifying..." : "Verify email"}
+      {pending ? pendingLabel : actionLabel}
     </button>
   );
 }
 
-function ResendButton({ pending }: { pending: boolean }) {
+function ResendButton({
+  pending,
+  pendingLabel,
+  actionLabel,
+}: {
+  pending: boolean;
+  pendingLabel: string;
+  actionLabel: string;
+}) {
   return (
     <button
       type="submit"
@@ -283,7 +302,7 @@ function ResendButton({ pending }: { pending: boolean }) {
       className="inline-flex items-center justify-center gap-2 rounded-[18px] border border-[#eadfd6] bg-white px-4 py-3 text-sm font-semibold text-secondary transition hover:bg-[#faf6f2] disabled:cursor-not-allowed disabled:opacity-70"
     >
       <RotateCw className={`h-4 w-4 ${pending ? "animate-spin" : ""}`} />
-      {pending ? "Sending..." : "Resend code"}
+      {pending ? pendingLabel : actionLabel}
     </button>
   );
 }

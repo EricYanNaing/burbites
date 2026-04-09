@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import CardAnimation from "../animations/card-animation";
+import { useI18n } from "@/components/i18n/locale-provider";
 
 type CustomCardProps = {
     id: string,
@@ -64,6 +67,9 @@ export function CustomCard({
     specialties,
     heroGradient,
 }: CustomCardProps) {
+    const { messages } = useI18n();
+    const t = messages.shopCard;
+
     return (
         <Link href={`/shops/${id}`} key={id}>
             <CardAnimation>
@@ -89,7 +95,7 @@ export function CustomCard({
                                     : "bg-[#ffe0e4] text-[#b41f3f]"
                                     }`}
                             >
-                                {open ? "Open now" : "Closed"}
+                                {open ? t.openNow : t.closed}
                             </span>
                             <span className="rounded-full bg-white/16 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white backdrop-blur-sm">
                                 {neighborhood}
@@ -103,7 +109,7 @@ export function CustomCard({
                         <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-4 text-white">
                             <div className="min-w-0">
                                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-white/70">
-                                    Burmese kitchen
+                                    {t.burmeseKitchen}
                                 </p>
                                 <h2 className="mt-1 text-[1.65rem] font-black leading-none">
                                     {title}
@@ -112,7 +118,7 @@ export function CustomCard({
 
                             <div className="shrink-0 rounded-2xl bg-white/16 px-3 py-2 text-right backdrop-blur-sm">
                                 <p className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-white/70">
-                                    ETA
+                                    {t.eta}
                                 </p>
                                 <p className="text-sm font-bold text-white">{eta}</p>
                             </div>
@@ -126,13 +132,13 @@ export function CustomCard({
 
                         <div className="grid grid-cols-3 gap-2">
                             <StatPill
-                                label="Distance"
+                                label={t.distance}
                                 value={`${distance.toFixed(1)} km`}
                             />
-                            <StatPill label="Reviews" value={`${reviewCount}`} />
+                            <StatPill label={t.reviews} value={`${reviewCount}`} />
                             <StatPill
-                                label="Status"
-                                value={open ? `Til ${closeTime}` : `At ${openTime}`}
+                                label={t.status}
+                                value={open ? t.statusTil(closeTime) : t.statusAt(openTime)}
                             />
                         </div>
 
@@ -150,12 +156,12 @@ export function CustomCard({
                         <div className="flex items-start justify-between gap-4 border-t border-black/6 pt-4">
                             <div>
                                 <p className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-secondary/45">
-                                    Pickup window
+                                    {t.pickupWindow}
                                 </p>
                                 <p className="mt-1 text-sm font-semibold text-secondary">
                                     {open
-                                        ? `Open now • closes ${closeTime}`
-                                        : `Closed • opens ${openTime}`}
+                                        ? t.openNowCloses(closeTime)
+                                        : t.closedOpens(openTime)}
                                 </p>
                             </div>
 

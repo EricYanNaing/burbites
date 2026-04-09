@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useActionState, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
+import { useI18n } from "@/components/i18n/locale-provider";
 
 type AuthMode = "sign-in" | "sign-up";
 type AuthState = { error?: string } | undefined;
@@ -14,48 +15,15 @@ type AuthFormProps = {
   mode: AuthMode;
 };
 
-const formCopy = {
-  "sign-in": {
-    label: "Sign in",
-    title: "Welcome back",
-    description:
-      "Enter your account credentials to continue into Burbites.",
-    submitLabel: "Sign in",
-    footerLabel: "Need an account?",
-    footerHref: "/auth/sign-up",
-    footerCta: "Create one",
-    helperText: "Use the email and password already registered to your account.",
-    nextStep: "Dashboard",
-  },
-  "sign-up": {
-    label: "Create account",
-    title: "Set up your account",
-    description:
-      "Create a user account with your name, email, and password.",
-    submitLabel: "Create account",
-    footerLabel: "Already have an account?",
-    footerHref: "/auth/sign-in",
-    footerCta: "Sign in",
-    helperText: "Admin permissions, if needed, are assigned separately after signup.",
-    nextStep: "Verify email",
-  },
-} satisfies Record<
-  AuthMode,
-  {
-    label: string;
-    title: string;
-    description: string;
-    submitLabel: string;
-    footerLabel: string;
-    footerHref: string;
-    footerCta: string;
-    helperText: string;
-    nextStep: string;
-  }
->;
+const footerHrefByMode: Record<AuthMode, string> = {
+  "sign-in": "/auth/sign-up",
+  "sign-up": "/auth/sign-in",
+};
 
 export function AuthForm({ mode }: AuthFormProps) {
-  const content = formCopy[mode];
+  const { messages } = useI18n();
+  const copy = messages.authForm;
+  const content = copy.modes[mode];
   const action = mode === "sign-in" ? signInActionState : signUpActionState;
   const searchParams = useSearchParams();
   const verified = searchParams.get("verified");
@@ -85,24 +53,24 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
 
       <div className="grid gap-3 rounded-[28px] border border-[#efe4dc] bg-[#faf6f2] p-4 sm:grid-cols-3">
-        <InfoPill label="Auth" value="Email only" />
-        <InfoPill label="Permissions" value="Role based" />
-        <InfoPill label="Next step" value={content.nextStep} />
+        <InfoPill label={copy.infoAuth} value={copy.infoAuthValue} />
+        <InfoPill label={copy.infoPermissions} value={copy.infoPermissionsValue} />
+        <InfoPill label={copy.infoNextStep} value={content.nextStep} />
       </div>
 
       <form action={formAction} className="space-y-4">
         {mode === "sign-up" ? (
           <AuthField
-            label="Full name"
+            label={copy.fullName}
             name="name"
             autoComplete="name"
-            placeholder="Your name"
+            placeholder={copy.yourName}
             icon={<UserRound className="h-5 w-5" />}
           />
         ) : null}
 
         <AuthField
-          label="Email address"
+          label={copy.emailAddress}
           name="email"
           type="email"
           autoComplete="email"
@@ -113,11 +81,11 @@ export function AuthForm({ mode }: AuthFormProps) {
         />
 
         <AuthField
-          label="Password"
+          label={copy.password}
           name="password"
           type={showPassword ? "text" : "password"}
           autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
-          placeholder={mode === "sign-in" ? "Enter your password" : "Create a password"}
+          placeholder={content.passwordPlaceholder}
           helper={content.helperText}
           icon={<LockKeyhole className="h-5 w-5" />}
           trailing={
@@ -125,7 +93,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               type="button"
               onClick={() => setShowPassword((value) => !value)}
               className="rounded-full p-1 text-secondary/45 transition hover:text-primary"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? copy.hidePassword : copy.showPassword}
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />
@@ -149,17 +117,17 @@ export function AuthForm({ mode }: AuthFormProps) {
             aria-live="polite"
             className="rounded-[22px] border border-[#cce9da] bg-[#eef9f2] px-4 py-3 text-sm leading-6 text-[#177245]"
           >
-            Your email is verified. Sign in to continue.
+            {copy.verifiedSuccess}
           </div>
         ) : null}
 
-        <SubmitButton label={content.submitLabel} />
+        <SubmitButton label={content.submitLabel} pendingLabel={copy.working} />
       </form>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-dashed border-[#e7dacf] bg-[#fcfaf8] px-4 py-4 text-sm leading-6 text-secondary/58">
         <span>{content.footerLabel}</span>
         <Link
-          href={content.footerHref}
+          href={footerHrefByMode[mode]}
           className="font-semibold text-primary transition hover:text-[#b9112f]"
         >
           {content.footerCta}
@@ -231,7 +199,7 @@ function AuthField({
   );
 }
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
 
   return (
@@ -240,7 +208,7 @@ function SubmitButton({ label }: { label: string }) {
       disabled={pending}
       className="inline-flex w-full items-center justify-center rounded-[22px] bg-secondary px-5 py-4 text-sm font-semibold text-white shadow-[0_18px_35px_rgba(38,25,26,0.16)] transition hover:bg-[#1d1213] disabled:cursor-not-allowed disabled:bg-secondary/70"
     >
-      {pending ? "Working..." : label}
+      {pending ? pendingLabel : label}
     </button>
   );
 }

@@ -1,8 +1,11 @@
 import { Reveal } from "@/components/animations/reveal";
 import { DishesPage } from "@/components/dishes/page";
 import { CustomBadge } from "@/components/ui/custom-badge";
+import { getServerMessages } from "@/lib/i18n/server";
 
-export default function Home() {
+export default async function Home() {
+  const t = await getServerMessages();
+
   return (
     <div className="w-full p-5 flex flex-col gap-8">
       {/* Featured Cards */}
@@ -22,11 +25,11 @@ export default function Home() {
         >
           <div className="flex h-full w-full flex-col items-start justify-end gap-1 p-5">
             <CustomBadge
-              label="Today's Special"
+              label={t.home.todaysSpecial}
               className="font-bold uppercase tracking-[0.12em]"
             />
-            <h1 className="text-4xl font-bold text-white">Featured Shop</h1>
-            <p className="max-w-52 text-white/92">Burmese food for everyone</p>
+            <h1 className="text-4xl font-bold text-white">{t.home.featuredShop}</h1>
+            <p className="max-w-52 text-white/92">{t.home.subtitle}</p>
           </div>
         </div>
       </Reveal>

@@ -1,6 +1,8 @@
 "use client";
 
 import { signOutAction } from "@/app/auth/action";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
+import { useI18n } from "@/components/i18n/locale-provider";
 import {
     BellDot,
     ChartNoAxesCombined,
@@ -23,7 +25,16 @@ type AdminShellProps = {
     children: React.ReactNode;
 };
 
+type NavKey =
+    | "overview"
+    | "shops"
+    | "customers"
+    | "analytics"
+    | "security"
+    | "settings";
+
 type NavItem = {
+    key: NavKey;
     activeMatch?: "exact" | "segment";
     description: string;
     href?: string;
@@ -32,50 +43,53 @@ type NavItem = {
     soon?: boolean;
 };
 
-const primaryMenu: NavItem[] = [
-    {
-        label: "Overview",
-        href: "/dashboard",
-        description: "Summary, alerts, and daily activity.",
-        Icon: LayoutDashboard,
-        activeMatch: "exact",
-    },
-    {
-        label: "Shops",
-        description: "Manage storefronts and availability.",
-        Icon: Store,
-        href: "/dashboard/shops",
-        soon: false,
-        activeMatch: "segment",
-    },
-    {
-        label: "Customers",
-        description: "Review users and account activity.",
-        Icon: Users,
-        soon: true,
-    },
-    {
-        label: "Analytics",
-        description: "Track performance and growth.",
-        Icon: ChartNoAxesCombined,
-        soon: true,
-    },
-];
+const primaryMenuMeta: Array<{
+    key: NavKey;
+    href?: string;
+    Icon: ComponentType<{ className?: string }>;
+    soon?: boolean;
+    activeMatch?: "exact" | "segment";
+}> = [
+        {
+            key: "overview",
+            href: "/dashboard",
+            Icon: LayoutDashboard,
+            activeMatch: "exact",
+        },
+        {
+            key: "shops",
+            href: "/dashboard/shops",
+            Icon: Store,
+            activeMatch: "segment",
+        },
+        {
+            key: "customers",
+            Icon: Users,
+            soon: true,
+        },
+        {
+            key: "analytics",
+            Icon: ChartNoAxesCombined,
+            soon: true,
+        },
+    ];
 
-const secondaryMenu: NavItem[] = [
-    {
-        label: "Security",
-        description: "Permissions, sessions, and controls.",
-        Icon: ShieldCheck,
-        soon: true,
-    },
-    {
-        label: "Settings",
-        description: "Workspace preferences and setup.",
-        Icon: Settings,
-        soon: true,
-    },
-];
+const secondaryMenuMeta: Array<{
+    key: NavKey;
+    Icon: ComponentType<{ className?: string }>;
+    soon?: boolean;
+}> = [
+        {
+            key: "security",
+            Icon: ShieldCheck,
+            soon: true,
+        },
+        {
+            key: "settings",
+            Icon: Settings,
+            soon: true,
+        },
+    ];
 
 function isActivePath(
     pathname: string,
@@ -93,15 +107,19 @@ function isActivePath(
     return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function getPageTitle(pathname: string) {
+function getPageTitle(pathname: string, dashboardTitle: string, shopsTitle: string) {
     if (pathname === "/dashboard") {
-        return "Dashboard";
+        return dashboardTitle;
+    }
+
+    if (pathname === "/dashboard/shops" || pathname.startsWith("/dashboard/shops/")) {
+        return shopsTitle;
     }
 
     const segment = pathname.split("/").filter(Boolean).at(-1);
 
     if (!segment) {
-        return "Dashboard";
+        return dashboardTitle;
     }
 
     return segment
@@ -112,15 +130,47 @@ function getPageTitle(pathname: string) {
 
 export default function AdminShell({ children }: AdminShellProps) {
     const pathname = usePathname();
+    const { messages } = useI18n();
+    const t = messages.admin;
     const [menuOpen, setMenuOpen] = useState(false);
 
-    const pageTitle = useMemo(() => getPageTitle(pathname), [pathname]);
+    const primaryMenu = useMemo<NavItem[]>(() => {
+        return primaryMenuMeta.map((item) => {
+            const navCopy = t.nav[item.key];
+
+            return {
+                ...item,
+                label: navCopy.label,
+                description: navCopy.description,
+            };
+        });
+    }, [t]);
+
+    const secondaryMenu = useMemo<NavItem[]>(() => {
+        return secondaryMenuMeta.map((item) => {
+            const navCopy = t.nav[item.key];
+
+            return {
+                ...item,
+                label: navCopy.label,
+                description: navCopy.description,
+            };
+        });
+    }, [t]);
+
+    const pageTitle = useMemo(() => {
+        return getPageTitle(pathname, t.pageTitleDashboard, t.pageTitleShops);
+    }, [pathname, t.pageTitleDashboard, t.pageTitleShops]);
 
     return (
         <section className="min-h-screen bg-[#f4eee8] text-secondary">
             <div className="mx-auto flex min-h-screen w-full bg-[#f7f1eb]">
                 <aside className="hidden w-[304px] shrink-0 border-r border-[#eaded4] bg-[#26191a] text-white lg:flex">
-                    <SidebarContent pathname={pathname} />
+                    <SidebarContent
+                        pathname={pathname}
+                        primaryMenu={primaryMenu}
+                        secondaryMenu={secondaryMenu}
+                    />
                 </aside>
 
                 <div className="flex min-h-screen min-w-0 flex-1 flex-col">
@@ -131,14 +181,14 @@ export default function AdminShell({ children }: AdminShellProps) {
                                     type="button"
                                     onClick={() => setMenuOpen(true)}
                                     className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8] lg:hidden"
-                                    aria-label="Open dashboard menu"
+                                    aria-label={t.openMenu}
                                 >
                                     <Menu className="h-5 w-5" />
                                 </button>
 
                                 <div className="min-w-0">
                                     <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary/74">
-                                        Admin workspace
+                                        {t.adminWorkspace}
                                     </p>
                                     <h1 className="truncate text-xl font-black text-secondary sm:text-2xl">
                                         {pageTitle}
@@ -146,14 +196,15 @@ export default function AdminShell({ children }: AdminShellProps) {
                                 </div>
                             </div>
 
-                            <div className="hidden items-center gap-3 sm:flex">
-                                <div className="rounded-full border border-[#eaded4] bg-white px-4 py-2 text-sm font-semibold text-secondary shadow-sm">
-                                    Live dashboard
+                            <div className="flex items-center gap-3">
+                                <LanguageSwitcher />
+                                <div className="hidden rounded-full border border-[#eaded4] bg-white px-4 py-2 text-sm font-semibold text-secondary shadow-sm sm:block">
+                                    {t.liveDashboard}
                                 </div>
                                 <button
                                     type="button"
-                                    className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8]"
-                                    aria-label="Notifications"
+                                    className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8] sm:inline-flex"
+                                    aria-label={t.notifications}
                                 >
                                     <BellDot className="h-5 w-5" />
                                 </button>
@@ -174,7 +225,7 @@ export default function AdminShell({ children }: AdminShellProps) {
             >
                 <button
                     type="button"
-                    aria-label="Close dashboard menu"
+                    aria-label={t.closeMenu}
                     onClick={() => setMenuOpen(false)}
                     className={`absolute inset-0 bg-[#1e1214]/48 transition ${menuOpen ? "opacity-100" : "opacity-0"
                         }`}
@@ -186,10 +237,10 @@ export default function AdminShell({ children }: AdminShellProps) {
                 >
                     <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
                         <div className="flex items-center gap-3">
-                            <Image src="/logo.png" alt="Burbites logo" width={36} height={36} />
+                            <Image src="/logo.png" alt={messages.header.logoAlt} width={36} height={36} />
                             <div>
                                 <p className="text-[0.66rem] font-semibold uppercase tracking-[0.22em] text-white/56">
-                                    Dashboard menu
+                                    {t.dashboardMenu}
                                 </p>
                                 <p className="font-display text-lg text-white">Burbites</p>
                             </div>
@@ -199,7 +250,7 @@ export default function AdminShell({ children }: AdminShellProps) {
                             type="button"
                             onClick={() => setMenuOpen(false)}
                             className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white"
-                            aria-label="Close dashboard menu"
+                            aria-label={t.closeMenu}
                         >
                             <X className="h-5 w-5" />
                         </button>
@@ -208,6 +259,8 @@ export default function AdminShell({ children }: AdminShellProps) {
                     <SidebarContent
                         pathname={pathname}
                         mobile
+                        primaryMenu={primaryMenu}
+                        secondaryMenu={secondaryMenu}
                         onNavigate={() => setMenuOpen(false)}
                     />
                 </aside>
@@ -220,19 +273,26 @@ function SidebarContent({
     mobile = false,
     onNavigate,
     pathname,
+    primaryMenu,
+    secondaryMenu,
 }: {
     mobile?: boolean;
     onNavigate?: () => void;
     pathname: string;
+    primaryMenu: NavItem[];
+    secondaryMenu: NavItem[];
 }) {
+    const { messages } = useI18n();
+    const t = messages.admin;
+
     return (
         <div className="flex h-full w-full flex-col">
             <div className="border-b border-white/8 px-5 pb-5 pt-6">
                 <Link href="/" onClick={onNavigate} className="inline-flex items-center gap-3">
-                    <Image src="/logo.png" alt="Burbites logo" width={44} height={44} />
+                    <Image src="/logo.png" alt={messages.header.logoAlt} width={44} height={44} />
                     <div>
                         <p className="text-[0.66rem] font-semibold uppercase tracking-[0.22em] text-white/56">
-                            Internal workspace
+                            {t.internalWorkspace}
                         </p>
                         <p className="font-display text-xl text-white">Burbites</p>
                     </div>
@@ -240,23 +300,25 @@ function SidebarContent({
 
                 <div className="mt-5 rounded-[24px] border border-white/8 bg-white/6 p-4">
                     <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/52">
-                        Control center
+                        {t.controlCenter}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-white/72">
-                        Start from overview, then grow this menu as new dashboard pages land.
+                        {t.controlCenterDescription}
                     </p>
                 </div>
+
+                <LanguageSwitcher className="mt-4" tone="dark" />
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-5">
                 <MenuGroup
-                    label="Main menu"
+                    label={t.mainMenu}
                     items={primaryMenu}
                     onNavigate={onNavigate}
                     pathname={pathname}
                 />
                 <MenuGroup
-                    label="System"
+                    label={t.system}
                     items={secondaryMenu}
                     onNavigate={onNavigate}
                     pathname={pathname}
@@ -266,10 +328,10 @@ function SidebarContent({
             <div className="border-t border-white/8 p-4">
                 <div className="rounded-[24px] border border-white/8 bg-white/6 p-4">
                     <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/52">
-                        Session
+                        {t.session}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-white/72">
-                        Dashboard shell is responsive and ready for mobile navigation.
+                        {t.sessionDescription}
                     </p>
                     <form action={signOutAction} className="mt-4">
                         <button
@@ -278,7 +340,7 @@ function SidebarContent({
                             className={`inline-flex w-full items-center justify-between rounded-[18px] border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/8 ${mobile ? "bg-white/8" : "bg-black/18"
                                 }`}
                         >
-                            Sign out
+                            {t.signOut}
                             <LogOut className="h-4 w-4" />
                         </button>
                     </form>
@@ -307,7 +369,7 @@ function MenuGroup({
             <div className="mt-3 space-y-2">
                 {items.map((item) => (
                     <MenuItem
-                        key={item.label}
+                        key={item.key}
                         item={item}
                         onNavigate={onNavigate}
                         pathname={pathname}
@@ -327,13 +389,14 @@ function MenuItem({
     onNavigate?: () => void;
     pathname: string;
 }) {
+    const { messages } = useI18n();
     const active = isActivePath(pathname, item.href, item.activeMatch);
 
     const content = (
         <div
             className={`group flex items-center gap-3 rounded-[22px] border px-3 py-3 transition ${active
-                    ? "border-white/16 bg-white text-secondary shadow-[0_16px_34px_rgba(0,0,0,0.16)]"
-                    : "border-transparent bg-white/5 text-white hover:border-white/10 hover:bg-white/8"
+                ? "border-white/16 bg-white text-secondary shadow-[0_16px_34px_rgba(0,0,0,0.16)]"
+                : "border-transparent bg-white/5 text-white hover:border-white/10 hover:bg-white/8"
                 }`}
         >
             <div
@@ -354,11 +417,11 @@ function MenuItem({
                     {item.soon ? (
                         <span
                             className={`rounded-full px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.16em] ${active
-                                    ? "bg-secondary/8 text-secondary/56"
-                                    : "bg-white/10 text-white/56"
+                                ? "bg-secondary/8 text-secondary/56"
+                                : "bg-white/10 text-white/56"
                                 }`}
                         >
-                            Soon
+                            {messages.admin.soon}
                         </span>
                     ) : null}
                 </div>

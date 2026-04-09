@@ -4,7 +4,7 @@ type EmptyStateProps = {
 };
 
 export function EmptyState({
-    title = "No dishes found",
+    title,
     description,
 }: EmptyStateProps) {
     return (
@@ -26,7 +26,7 @@ export function EmptyState({
                 </svg>
             </div>
 
-            <h3 className="text-lg font-semibold text-secondary">{title}</h3>
+            {title ? <h3 className="text-lg font-semibold text-secondary">{title}</h3> : null}
             <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-secondary/70">
                 {description}
             </p>
