@@ -4,14 +4,18 @@ import { usePathname } from "next/navigation";
 import { AppShell } from "./app-shell";
 import AdminShell from "./admin-shell";
 
-function isAdminPath(pathname: string) {
-    return pathname.startsWith("/auth") || pathname.startsWith("/dashboard");
+function isAuthPath(pathname: string) {
+    return pathname.startsWith("/auth");
 }
 
 export function ShellSwitch({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
-    if (isAdminPath(pathname)) {
+    if (pathname.startsWith("/dashboard")) {
+        return children;
+    }
+
+    if (isAuthPath(pathname)) {
         return <AdminShell>{children}</AdminShell>;
     }
 

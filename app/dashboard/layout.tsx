@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/server";
+import AdminShell from "@/components/layouts/admin-shell";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -14,5 +15,5 @@ export default async function DashboardLayout({
         redirect("/auth/sign-in");
     }
 
-    return children;
+    return <AdminShell>{children}</AdminShell>;
 }
