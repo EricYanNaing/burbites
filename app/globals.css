@@ -36,3 +36,58 @@ body {
   color: var(--background);
   background-color: var(--background);
 }
+
+@keyframes ui-shimmer-slide {
+  0% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes ui-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes ui-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ui-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.ui-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 45%,
+    transparent 100%
+  );
+  animation: ui-shimmer-slide 1.7s ease-in-out infinite;
+}
+
+.ui-float {
+  animation: ui-float 4.2s ease-in-out infinite;
+}
+
+.ui-breathe {
+  animation: ui-breathe 1.3s ease-in-out infinite;
+}
