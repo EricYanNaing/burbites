@@ -12,11 +12,11 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id String @id @default(cuid())
-  name String
-  email String @unique
-  password String
+model AppUser {
+  id        String   @id // Neon auth user id
+  email     String   @unique
+  name      String?
+  shops     Shop[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -39,13 +39,20 @@ model Shop {
   description String?
   cuisine String?
   featuredCategorySlugs String?
+
+  ownerId               String
+  owner                 AppUser     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
   menuSections MenuSection[]
   menuItems MenuItem[]
+
   heroGradient String?
   mapPositionX Int?
   mapPositionY Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
 }
 
 model MenuSection {

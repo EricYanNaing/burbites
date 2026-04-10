@@ -130,6 +130,7 @@ function getPageTitle(pathname: string, dashboardTitle: string, shopsTitle: stri
 
 export default function AdminShell({ children }: AdminShellProps) {
     const pathname = usePathname();
+    const showSidebar = pathname.startsWith("/dashboard");
     const { messages } = useI18n();
     const t = messages.admin;
     const [menuOpen, setMenuOpen] = useState(false);
@@ -165,26 +166,31 @@ export default function AdminShell({ children }: AdminShellProps) {
     return (
         <section className="min-h-screen bg-[#f4eee8] text-secondary">
             <div className="mx-auto flex min-h-screen w-full bg-[#f7f1eb]">
-                <aside className="hidden w-[304px] shrink-0 border-r border-[#eaded4] bg-[#26191a] text-white lg:flex">
-                    <SidebarContent
-                        pathname={pathname}
-                        primaryMenu={primaryMenu}
-                        secondaryMenu={secondaryMenu}
-                    />
-                </aside>
+                {showSidebar && (
+                    <aside className="hidden w-[304px] shrink-0 border-r border-[#eaded4] bg-[#26191a] text-white lg:flex">
+                        <SidebarContent
+                            pathname={pathname}
+                            primaryMenu={primaryMenu}
+                            secondaryMenu={secondaryMenu}
+                        />
+                    </aside>
+                )}
+
 
                 <div className="flex min-h-screen min-w-0 flex-1 flex-col">
                     <header className="sticky top-0 z-30 border-b border-[#eaded4] bg-[#f7f1eb]/92 backdrop-blur">
                         <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
                             <div className="flex min-w-0 items-center gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setMenuOpen(true)}
-                                    className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8] lg:hidden"
-                                    aria-label={t.openMenu}
-                                >
-                                    <Menu className="h-5 w-5" />
-                                </button>
+                                {showSidebar ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMenuOpen(true)}
+                                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8] lg:hidden"
+                                        aria-label={t.openMenu}
+                                    >
+                                        <Menu className="h-5 w-5" />
+                                    </button>
+                                ) : null}
 
                                 <div className="min-w-0">
                                     <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-primary/74">
@@ -218,53 +224,55 @@ export default function AdminShell({ children }: AdminShellProps) {
                 </div>
             </div>
 
-            <div
-                className={`fixed inset-0 z-50 lg:hidden ${menuOpen ? "pointer-events-auto" : "pointer-events-none"
-                    }`}
-                aria-hidden={!menuOpen}
-            >
-                <button
-                    type="button"
-                    aria-label={t.closeMenu}
-                    onClick={() => setMenuOpen(false)}
-                    className={`absolute inset-0 bg-[#1e1214]/48 transition ${menuOpen ? "opacity-100" : "opacity-0"
+            {showSidebar ? (
+                <div
+                    className={`fixed inset-0 z-50 lg:hidden ${menuOpen ? "pointer-events-auto" : "pointer-events-none"
                         }`}
-                />
-
-                <aside
-                    className={`absolute left-0 top-0 h-full w-[86vw] max-w-[320px] border-r border-white/8 bg-[#26191a] text-white shadow-[0_24px_60px_rgba(0,0,0,0.32)] transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
-                        }`}
+                    aria-hidden={!menuOpen}
                 >
-                    <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
-                        <div className="flex items-center gap-3">
-                            <Image src="/logo.png" alt={messages.header.logoAlt} width={36} height={36} />
-                            <div>
-                                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.22em] text-white/56">
-                                    {t.dashboardMenu}
-                                </p>
-                                <p className="font-display text-lg text-white">Burbites</p>
+                    <button
+                        type="button"
+                        aria-label={t.closeMenu}
+                        onClick={() => setMenuOpen(false)}
+                        className={`absolute inset-0 bg-[#1e1214]/48 transition ${menuOpen ? "opacity-100" : "opacity-0"
+                            }`}
+                    />
+
+                    <aside
+                        className={`absolute left-0 top-0 h-full w-[86vw] max-w-[320px] border-r border-white/8 bg-[#26191a] text-white shadow-[0_24px_60px_rgba(0,0,0,0.32)] transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full"
+                            }`}
+                    >
+                        <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
+                            <div className="flex items-center gap-3">
+                                <Image src="/logo.png" alt={messages.header.logoAlt} width={36} height={36} />
+                                <div>
+                                    <p className="text-[0.66rem] font-semibold uppercase tracking-[0.22em] text-white/56">
+                                        {t.dashboardMenu}
+                                    </p>
+                                    <p className="font-display text-lg text-white">Burbites</p>
+                                </div>
                             </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setMenuOpen(false)}
+                                className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white"
+                                aria-label={t.closeMenu}
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => setMenuOpen(false)}
-                            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white"
-                            aria-label={t.closeMenu}
-                        >
-                            <X className="h-5 w-5" />
-                        </button>
-                    </div>
-
-                    <SidebarContent
-                        pathname={pathname}
-                        mobile
-                        primaryMenu={primaryMenu}
-                        secondaryMenu={secondaryMenu}
-                        onNavigate={() => setMenuOpen(false)}
-                    />
-                </aside>
-            </div>
+                        <SidebarContent
+                            pathname={pathname}
+                            mobile
+                            primaryMenu={primaryMenu}
+                            secondaryMenu={secondaryMenu}
+                            onNavigate={() => setMenuOpen(false)}
+                        />
+                    </aside>
+                </div>
+            ) : null}
         </section>
     );
 }
