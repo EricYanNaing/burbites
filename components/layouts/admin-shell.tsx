@@ -20,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState, type ComponentType } from "react";
+import CustomModal from "../ui/custom-modal";
 
 type AdminShellProps = {
     children: React.ReactNode;
@@ -134,6 +135,7 @@ export default function AdminShell({ children }: AdminShellProps) {
     const { messages } = useI18n();
     const t = messages.admin;
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
 
     const primaryMenu = useMemo<NavItem[]>(() => {
         return primaryMenuMeta.map((item) => {
@@ -162,6 +164,10 @@ export default function AdminShell({ children }: AdminShellProps) {
     const pageTitle = useMemo(() => {
         return getPageTitle(pathname, t.pageTitleDashboard, t.pageTitleShops);
     }, [pathname, t.pageTitleDashboard, t.pageTitleShops]);
+
+    const signOutHandler = () => {
+        setIsSignOutModalOpen(true);
+    }
 
     return (
         <section className="min-h-screen bg-[#f4eee8] text-secondary">
@@ -204,16 +210,25 @@ export default function AdminShell({ children }: AdminShellProps) {
 
                             <div className="flex items-center gap-3">
                                 <LanguageSwitcher />
-                                <div className="hidden rounded-full border border-[#eaded4] bg-white px-4 py-2 text-sm font-semibold text-secondary shadow-sm sm:block">
-                                    {t.liveDashboard}
-                                </div>
+
                                 <button
+                                    type="button"
+                                    onClick={() => signOutHandler()}
+                                    className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8] sm:inline-flex"
+                                    aria-label={t.signOut}
+                                >
+                                    <LogOut className="h-4 w-4" />
+                                </button>
+
+
+
+                                {/* <button
                                     type="button"
                                     className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-[#e8ddd4] bg-white text-secondary shadow-sm transition hover:bg-[#fdfaf8] sm:inline-flex"
                                     aria-label={t.notifications}
                                 >
                                     <BellDot className="h-5 w-5" />
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </header>
@@ -222,6 +237,37 @@ export default function AdminShell({ children }: AdminShellProps) {
                         <div className="mx-auto w-full max-w-7xl">{children}</div>
                     </main>
                 </div>
+
+                <CustomModal
+                    open={isSignOutModalOpen}
+                    onClose={() => setIsSignOutModalOpen(false)}
+                    isCloseButton={true}
+                    className="w-full max-w-md"
+                >
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                            <LogOut className="h-8 w-8 text-red-600" />
+                        </div>
+                        <h2 className="text-xl font-bold text-secondary">Sign Out</h2>
+                        <p className="text-center text-secondary/74">Are you sure you want to sign out?</p>
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setIsSignOutModalOpen(false)}
+                                className="rounded-lg border border-[#e8ddd4] bg-white px-4 py-2 text-secondary shadow-sm transition hover:bg-[#fdfaf8]"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => signOutAction()}
+                                className="rounded-lg bg-red-600 px-4 py-2 text-white shadow-sm transition hover:bg-red-700"
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </CustomModal>
             </div>
 
             {showSidebar ? (
@@ -273,6 +319,7 @@ export default function AdminShell({ children }: AdminShellProps) {
                     </aside>
                 </div>
             ) : null}
+
         </section>
     );
 }
@@ -295,7 +342,7 @@ function SidebarContent({
 
     return (
         <div className="flex h-full w-full flex-col">
-            <div className="border-b border-white/8 px-5 pb-5 pt-6">
+            <div className="hidden lg:block border-b border-white/8 px-5 pb-5 pt-6">
                 <Link href="/" onClick={onNavigate} className="inline-flex items-center gap-3">
                     <Image src="/logo.png" alt={messages.header.logoAlt} width={44} height={44} />
                     <div>
@@ -315,7 +362,6 @@ function SidebarContent({
                     </p>
                 </div>
 
-                <LanguageSwitcher className="mt-4" tone="dark" />
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-5">
@@ -333,26 +379,18 @@ function SidebarContent({
                 />
             </div>
 
-            <div className="border-t border-white/8 p-4">
-                <div className="rounded-[24px] border border-white/8 bg-white/6 p-4">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-white/52">
-                        {t.session}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/72">
-                        {t.sessionDescription}
-                    </p>
-                    <form action={signOutAction} className="mt-4">
-                        <button
-                            type="submit"
-                            onClick={onNavigate}
-                            className={`inline-flex w-full items-center justify-between rounded-[18px] border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/8 ${mobile ? "bg-white/8" : "bg-black/18"
-                                }`}
-                        >
-                            {t.signOut}
-                            <LogOut className="h-4 w-4" />
-                        </button>
-                    </form>
-                </div>
+            <div className="border-t border-white/8 p-4 mb-20 lg:mb-0">
+                <form action={signOutAction} className="mt-4">
+                    <button
+                        type="submit"
+                        onClick={onNavigate}
+                        className={`inline-flex w-full items-center justify-between rounded-[18px] border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/8 ${mobile ? "bg-white/8" : "bg-black/18"
+                            }`}
+                    >
+                        {t.signOut}
+                        <LogOut className="h-4 w-4" />
+                    </button>
+                </form>
             </div>
         </div>
     );
@@ -450,9 +488,11 @@ function MenuItem({
 
     if (item.href && !item.soon) {
         return (
-            <Link href={item.href} onClick={onNavigate}>
-                {content}
-            </Link>
+            <div className="mb-2">
+                <Link href={item.href} onClick={onNavigate}>
+                    {content}
+                </Link>
+            </div>
         );
     }
 
